@@ -68,7 +68,10 @@ class AppController extends Action {
     if($pesquisarPor != ''){
       $usuario = Container::getModel('Usuario');
       $usuario->__set('nome', $pesquisarPor);
+      $usuario->__set('id', $_SESSION['id']);
       $usuarios = $usuario->getAll();
+      
+
     }
     
     $this->view->usuarios = $usuarios;

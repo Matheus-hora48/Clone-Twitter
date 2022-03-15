@@ -1,70 +1,66 @@
 <?php
 
-//Diretorios onde o arquivo ta 
 namespace App\Models;
 
 use MF\Model\Model;
 
-class Usuario extends Model{
+class Usuario extends Model {
 
-  private $id;
-  private $nome;
-  private $email;
-  private $senha;
+	private $id;
+	private $nome;
+	private $email;
+	private $senha;
+
+	public function __get($atributo) {
+		return $this->$atributo;
+	}
+
+	public function __set($atributo, $valor) {
+		$this->$atributo = $valor;
+	}
+
+	//salvar
+	public function salvar() {
+
+		$query = "insert into usuarios(nome, email, senha)values(:nome, :email, :senha)";
+		$stmt = $this->db->prepare($query);
+		$stmt->bindValue(':nome', $this->__get('nome'));
+		$stmt->bindValue(':email', $this->__get('email'));
+		$stmt->bindValue(':senha', $this->__get('senha')); //md5() -> hash 32 caracteres
+		$stmt->execute();
+
+		return $this;
+	}
+
+	//validar se um cadastro pode ser feito
+	public function validarCadastro() {
+		$valido = true;
+
+		if(strlen($this->__get('nome')) < 3) {
+			$valido = false;
+		}
+
+		if(strlen($this->__get('email')) < 3) {
+			$valido = false;
+		}
+
+		if(strlen($this->__get('senha')) < 3) {
+			$valido = false;
+		}
 
 
-  public function __get($atributo){
-    return $this->$atributo;
-  }
+		return $valido;
+	}
 
-  public function __set($atributo, $valor){
-    $this->$atributo = $valor;
-  }
+	//recuperar um usuário por e-mail
+	public function getUsuarioPorEmail() {
+		$query = "select nome, email from usuarios where email = :email";
+		$stmt = $this->db->prepare($query);
+		$stmt->bindValue(':email', $this->__get('email'));
+		$stmt->execute();
 
-  //Salvar
-  public function salvar(){
-
-    $query = 'insert into usuarios(nome, email, senha)values(:nome, :email, :senha)';
-    $stmt = $this->db->prepare($query);
-
-    //vai subistituir o nome da query pelo do sistema
-    $stmt->bindValue(':nome', $this->__get('nome'));
-    $stmt->bindValue(':email', $this->__get('email'));
-    $stmt->bindValue(':senha', $this->__get('senha')); //md5() ->
-
-    //executando o parametro
-    $stmt->execute();
-
-    return $this;
-  }
-
-  //Validar cadastro para ve se pode ser feito
-  public function validarCadastro(){
-    $valido = true;
-
-    if(strlen($this->__get('nome') < 3)){
-      $valido = false;
-    }
-
-    if(strlen($this->__get('email') < 3)){
-      $valido = false;
-    }
-
-    if(strlen($this->__get('senha') < 3)){
-      $valido = false;
-    }
-  }
-
-  //Recuperar um usuario por e-mail
-  public function getUsuarioPorEmail(){
-    $query = 'select nome, email from usuarios where email = :email';
-    $stmt = $this->db->prepare($query);
-    $stmt->bindValue(':email', $this->__get('email'));
-    $stmt->execute();
-
-    return $stmt->fetchAll(\PDO::FETCH_ASSOC);
-  }
-
+		return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+	}
 }
 
 ?>

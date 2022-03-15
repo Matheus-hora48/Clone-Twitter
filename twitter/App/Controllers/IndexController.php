@@ -3,8 +3,6 @@
 namespace App\Controllers;
 
 //os recursos do miniframework
-
-use App\Models\Usuario;
 use MF\Controller\Action;
 use MF\Model\Container;
 
@@ -15,22 +13,20 @@ class IndexController extends Action {
 		$this->render('index');
 	}
 
-	public function inscreverse(){
-		$this->view->usuario = array(
+	public function inscreverse() {
 
-			'nome' =>  '',
-			'email' => '',
-			'senha' => '',
-		);
+		$this->view->usuario = array(
+				'nome' => '',
+				'email' => '',
+				'senha' => '',
+			);
 
 		$this->view->erroCadastro = false;
 
 		$this->render('inscreverse');
 	}
 
-	public function registrar(){
-		
-		//Recebendo os dados
+	public function registrar() {
 
 		$usuario = Container::getModel('Usuario');
 
@@ -38,15 +34,16 @@ class IndexController extends Action {
 		$usuario->__set('email', $_POST['email']);
 		$usuario->__set('senha', $_POST['senha']);
 
-		if($usuario->validarCadastro() && (count($usuario->getUsuarioPorEmail()) == 0)){
+		
+		if($usuario->validarCadastro() && count($usuario->getUsuarioPorEmail()) == 0) {
+		
+				$usuario->salvar();
 
-			$usuario->salvar();
+				$this->render('cadastro');
 
-			$this->render('cadastro');
 		} else {
 
 			$this->view->usuario = array(
-
 				'nome' => $_POST['nome'],
 				'email' => $_POST['email'],
 				'senha' => $_POST['senha'],
@@ -56,6 +53,10 @@ class IndexController extends Action {
 
 			$this->render('inscreverse');
 		}
-		
+
 	}
+
 }
+
+
+?>

@@ -10,11 +10,15 @@ class AppController extends Action {
 
   public function timeline(){
 
+    session_start();
+
     if($_SESSION['id'] != '' && $_SESSION['nome'] != ''){
-      
+      $this->render('timeline');
+    } else {
+      header('location: /?login=erro');
     }
 
-    session_start();
+    
     
   }
 }

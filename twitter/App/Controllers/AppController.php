@@ -12,11 +12,19 @@ class AppController extends Action {
 
     session_start();
 
-    if($_SESSION['id'] != '' && $_SESSION['nome'] != ''){
-      $this->render('timeline');
-    } else {
-      header('location: /?login=erro');
-    }
+    $this->validaAutenticacao();
+
+    //Recuperação do tweets
+    $tweet = Container::getModel('Tweet');
+
+    $tweet->__set('id_usuario', $_SESSION['id']);
+
+    $tweets = $tweet->getAll();
+
+    $this->view->tweets = $tweets;
+
+    $this->render('timeline');
+    
 
     
     
@@ -26,19 +34,26 @@ class AppController extends Action {
 
     session_start();
 
-    if($_SESSION['id'] != '' && $_SESSION['nome'] != ''){
+    $this->validaAutenticacao();
 
-      $tweet = Container::getModel('tweet');
+    $tweet = Container::getModel('tweet');
 
-      $tweet->__set('tweet', $_POST['tweet']);
-      $tweet->__set('id_usuario', $_SESSION['id']);
+    $tweet->__set('tweet', $_POST['tweet']);
+    $tweet->__set('id_usuario', $_SESSION['id']);
 
-      $tweet->salvar();
+    $tweet->salvar();
+
+    header('location: /timeline');
       
-    } else {
+
+  }
+
+  public function validaAutenticacao(){
+
+    session_start();
+
+    if(!isset($_SESSION['id']) || $_SESSION['id'] == '' || !isset($_SESSION['nome']) || $_SESSION['nome'] == '' ){
       header('location: /?login=erro');
-    }
+    } 
   }
 }
-
-?>

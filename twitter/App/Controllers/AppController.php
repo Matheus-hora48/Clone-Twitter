@@ -8,75 +8,92 @@ use MF\Model\Container;
 
 class AppController extends Action {
 
-  public function timeline(){
 
-    session_start();
+	public function timeline() {
 
-    $this->validaAutenticacao();
+		$this->validaAutenticacao();
+			
+		//recuperação dos tweets
+		$tweet = Container::getModel('Tweet');
 
-    //Recuperação do tweets
-    $tweet = Container::getModel('Tweet');
+		$tweet->__set('id_usuario', $_SESSION['id']);
 
-    $tweet->__set('id_usuario', $_SESSION['id']);
+		$tweets = $tweet->getAll();
 
-    $tweets = $tweet->getAll();
+		$this->view->tweets = $tweets;
 
-    $this->view->tweets = $tweets;
+		$this->render('timeline');
+		
+		
+	}
 
-    $this->render('timeline');
-    
+	public function tweet() {
 
-    
-    
-  }
+		$this->validaAutenticacao();
 
-  public function tweet(){
+		$tweet = Container::getModel('Tweet');
 
-    session_start();
+		$tweet->__set('tweet', $_POST['tweet']);
+		$tweet->__set('id_usuario', $_SESSION['id']);
 
-    $this->validaAutenticacao();
+		$tweet->salvar();
 
-    $tweet = Container::getModel('tweet');
+		header('Location: /timeline');
+		
+	}
 
-    $tweet->__set('tweet', $_POST['tweet']);
-    $tweet->__set('id_usuario', $_SESSION['id']);
+	public function validaAutenticacao() {
 
-    $tweet->salvar();
+		session_start();
 
-    header('location: /timeline');
-      
+		if(!isset($_SESSION['id']) || $_SESSION['id'] == '' || !isset($_SESSION['nome']) || $_SESSION['nome'] == '') {
+			header('Location: /?login=erro');
+		}	
 
-  }
+	}
 
-  public function validaAutenticacao(){
+	public function quemSeguir() {
 
-    session_start();
+		$this->validaAutenticacao();
 
-    if(!isset($_SESSION['id']) || $_SESSION['id'] == '' || !isset($_SESSION['nome']) || $_SESSION['nome'] == '' ){
-      header('location: /?login=erro');
-    } 
-  }
+		$pesquisarPor = isset($_GET['pesquisarPor']) ? $_GET['pesquisarPor'] : '';
+		
+		$usuarios = array();
 
-  public function quemSeguir(){
-    
-    $this->validaAutenticacao();
+		if($pesquisarPor != '') {
+			
+			$usuario = Container::getModel('Usuario');
+			$usuario->__set('nome', $pesquisarPor);
+			$usuario->__set('id', $_SESSION['id']);
+			$usuarios = $usuario->getAll();
 
-    $pesquisarPor = isset($_GET['pesquisarPor']) ? ($_GET['pesquisarPor']) : '';
+		}
 
-    $usuarios = array();
+		$this->view->usuarios = $usuarios;
 
-    if($pesquisarPor != ''){
-      $usuario = Container::getModel('Usuario');
-      $usuario->__set('nome', $pesquisarPor);
-      $usuario->__set('id', $_SESSION['id']);
-      $usuarios = $usuario->getAll();
-      
+		$this->render('quemSeguir');
+	}	
 
-    }
-    
-    $this->view->usuarios = $usuarios;
+	public function acao() {
 
-    $this->render('quemSeguir');
-    
-  }
+		$this->validaAutenticacao();
+
+		$acao = isset($_GET['acao']) ? $_GET['acao'] : '';
+		$id_usuario_seguindo = isset($_GET['id_usuario']) ? $_GET['id_usuario'] : '';
+
+		$usuario = Container::getModel('Usuario');
+		$usuario->__set('id', $_SESSION['id']);
+
+		if($acao == 'seguir') {
+			$usuario->seguirUsuario($id_usuario_seguindo);
+
+		} else if($acao == 'deixar_de_seguir') {
+			$usuario->deixarSeguirUsuario($id_usuario_seguindo);
+
+		}
+
+		header('Location: /quem_seguir');
+	}
 }
+
+?>

@@ -20,7 +20,14 @@ class Upload extends Model {
 	}
 
   //salvar foto
-  
+  public function guardarFoto(){
+		$query = "insert into arquivo(id_usuario, tweet)values(:id_usuario, :arquivo)";
+		$stmt = $this->db->prepare($query);
+		$stmt->bindValue(':id_usuario', $this->__get('id_usuario'));
+		$stmt->bindValue(':tweet', $this->__get('arquivo'));
+		$stmt->execute();
+	}
+	
 }
 
 ?>

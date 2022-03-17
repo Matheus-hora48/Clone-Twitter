@@ -62,6 +62,12 @@ class Route extends Bootstrap {
 			'action' => 'acao'
 		);
 
+		$routes['upload'] = array(
+			'route' => '/upload',
+			'controller' => 'UppController',
+			'action' => 'upload'
+		);
+
 		$this->setRoutes($routes);
 	}
 

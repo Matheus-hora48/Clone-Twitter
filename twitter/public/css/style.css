@@ -226,3 +226,11 @@ body.active {
 .container {
   background: #fff;
 }
+
+/* input[type='file']{
+  display: none;
+} */
+
+.upload{
+  color: #000;
+}
